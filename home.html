@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -438,125 +438,6 @@
     letter-spacing: 0.03em;
   }
 
-  .footer a {
-    color: var(--text-secondary);
-    text-decoration: none;
-    cursor: pointer;
-    transition: color 0.2s;
-  }
-
-  .footer a:hover {
-    color: var(--accent);
-  }
-
-  /* ── Settings Panel ── */
-  .settings-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 14px 0;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .settings-row:last-child { border-bottom: none; }
-
-  .settings-label {
-    font-size: 0.92rem;
-    font-weight: 400;
-    color: var(--text-primary);
-  }
-
-  .settings-desc {
-    font-size: 0.78rem;
-    color: var(--text-dim);
-    margin-top: 4px;
-  }
-
-  /* Toggle switch */
-  .toggle {
-    position: relative;
-    width: 44px;
-    height: 24px;
-    flex-shrink: 0;
-  }
-
-  .toggle input { opacity: 0; width: 0; height: 0; }
-
-  .toggle-slider {
-    position: absolute;
-    inset: 0;
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 24px;
-    cursor: pointer;
-    transition: all 0.3s;
-  }
-
-  .toggle-slider::before {
-    content: '';
-    position: absolute;
-    width: 18px;
-    height: 18px;
-    left: 2px;
-    top: 2px;
-    background: var(--text-secondary);
-    border-radius: 50%;
-    transition: all 0.3s;
-  }
-
-  .toggle input:checked + .toggle-slider {
-    background: var(--accent);
-    border-color: var(--accent);
-  }
-
-  .toggle input:checked + .toggle-slider::before {
-    transform: translateX(20px);
-    background: #fff;
-  }
-
-  /* Reset button */
-  .btn-reset {
-    width: 100%;
-    padding: 12px;
-    margin-top: 16px;
-    border-radius: 12px;
-    border: 1px solid rgba(255,60,60,0.2);
-    background: rgba(255,60,60,0.08);
-    color: #ff6b6b;
-    font-size: 0.9rem;
-    font-family: 'Inter', sans-serif;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-
-  .btn-reset:hover {
-    background: rgba(255,60,60,0.15);
-    border-color: rgba(255,60,60,0.4);
-  }
-
-  /* Accent color picker */
-  .color-options {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-  }
-
-  .color-swatch {
-    width: 30px;
-    height: 30px;
-    border-radius: 8px;
-    border: 2px solid transparent;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-
-  .color-swatch:hover { transform: scale(1.15); }
-
-  .color-swatch.active {
-    border-color: #fff;
-    box-shadow: 0 0 0 2px var(--accent-glow);
-  }
-
   /* ── Responsive ── */
   @media (max-width: 600px) {
     .time-display { font-size: 3.5rem; }
@@ -589,11 +470,11 @@
       <input type="text" class="search-input" id="searchInput" placeholder="Search the web…" autocomplete="off" />
     </div>
     <div class="engine-pills" id="enginePills">
-      <button class="engine-pill active" data-engine="google">Google</button>
       <button class="engine-pill" data-engine="duckduckgo">DuckDuckGo</button>
       <button class="engine-pill" data-engine="bing">Bing</button>
       <button class="engine-pill" data-engine="brave">Brave</button>
       <button class="engine-pill" data-engine="youtube">YouTube</button>
+      <button class="engine-pill active" data-engine="google">Google</button>
     </div>
   </div>
 
@@ -606,7 +487,7 @@
     <div class="links-grid" id="linksGrid"></div>
   </div>
 
-  <div class="footer">Zen Homepage &middot; Stay focused &middot; <a id="btnCustomize">Customize</a></div>
+  <div class="footer">Zen Homepage &middot; Stay focused</div>
 </div>
 
 <!-- Add Link Modal -->
@@ -623,69 +504,155 @@
   </div>
 </div>
 
-<!-- Settings Modal -->
-<div class="modal-overlay" id="settingsOverlay">
-  <div class="modal">
-    <h3>⚙ Customize Homepage</h3>
+<script>
+// ── Config ──
+const STORAGE_KEY = 'zen_homepage_links';
+const ENGINE_KEY = 'zen_homepage_engine';
 
-    <div class="settings-row">
-      <div>
-        <div class="settings-label">Show Clock</div>
-        <div class="settings-desc">Display time and date</div>
-      </div>
-      <label class="toggle">
-        <input type="checkbox" id="toggleClock" checked />
-        <span class="toggle-slider"></span>
-      </label>
-    </div>
+const defaultLinks = [
+  { name: 'GitHub',     url: 'https://github.com',          emoji: '🐙', color: '#6e5494' },
+  //{ name: 'Reddit',     url: 'https://reddit.com',          emoji: '🤖', color: '#ff4500' },
+  //{ name: 'YouTube',    url: 'https://youtube.com',         emoji: '▶️', color: '#ff0000' },
+  //{ name: 'Gmail',      url: 'https://mail.google.com',     emoji: '📧', color: '#4285f4' },
+  //{ name: 'Twitter',    url: 'https://x.com',               emoji: '🐦', color: '#1d9bf0' },
+  //{ name: 'Notion',     url: 'https://notion.so',           emoji: '📝', color: '#fff' },
+  //{ name: 'Drive',      url: 'https://drive.google.com',    emoji: '📁', color: '#4285f4' },
+  //{ name: 'Calendar',   url: 'https://calendar.google.com', emoji: '📅', color: '#0f9d58' },
+];
 
-    <div class="settings-row">
-      <div>
-        <div class="settings-label">Show Quote</div>
-        <div class="settings-desc">Daily inspiration</div>
-      </div>
-      <label class="toggle">
-        <input type="checkbox" id="toggleQuote" checked />
-        <span class="toggle-slider"></span>
-      </label>
-    </div>
+const quotes = [
+  '"Threee of anything is enough." — tony mel',
+  '"Simplicity is the ultimate sophistication." — Leonardo da Vinci',
+  '"What you think, you become." — Buddha',
+  '"The present moment is filled with joy." — Buddha',
+  '"Less is more." — Mies van der Rohe',
+  '""The artist does nothing." — Marcel Duchamp',
+  '"You gotta put a beep beep in your toot toot." — Jeff Richey',
+  '"The best time to plant a tree was 20 years ago. The second best time is now."',
+  '""I have forced myself to contradict myself in order to avoid conforming to my own taste." — Marcel Duchamp',
+  '"Art is a game between all people and all periods." — Marcel Duchamp',
+  '"So it goes." — Kurt Vonnegut',
+  '"The man who does not read has no advantage over the man who cannot read.." — Mark Twain',
+  
+];
 
-    <div class="settings-row">
-      <div>
-        <div class="settings-label">Show Search</div>
-        <div class="settings-desc">Search bar and engines</div>
-      </div>
-      <label class="toggle">
-        <input type="checkbox" id="toggleSearch" checked />
-        <span class="toggle-slider"></span>
-      </label>
-    </div>
+const searchEngines = {
+  duckduckgo:  'https://duckduckgo.com/?q=',
+  bing:        'https://www.bing.com/search?q=',
+  brave:       'https://search.brave.com/search?q=',
+  youtube:     'https://www.youtube.com/results?search_query=',
+  google:      'https://www.google.com/search?igu=1&q=',
+};
 
-    <div class="settings-row">
-      <div>
-        <div class="settings-label">Accent Color</div>
-        <div class="settings-desc">Pick your vibe</div>
-      </div>
-      <div class="color-options" id="colorOptions">
-        <div class="color-swatch active" data-color="#7c6aef" style="background:#7c6aef"></div>
-        <div class="color-swatch" data-color="#4ecdc4" style="background:#4ecdc4"></div>
-        <div class="color-swatch" data-color="#e040a0" style="background:#e040a0"></div>
-        <div class="color-swatch" data-color="#f39c12" style="background:#f39c12"></div>
-        <div class="color-swatch" data-color="#27ae60" style="background:#27ae60"></div>
-        <div class="color-swatch" data-color="#e74c3c" style="background:#e74c3c"></div>
-        <div class="color-swatch" data-color="#3498db" style="background:#3498db"></div>
-        <div class="color-swatch" data-color="#ecf0f1" style="background:#ecf0f1"></div>
-      </div>
-    </div>
+// ── State ──
+let links = JSON.parse(localStorage.getItem(STORAGE_KEY)) || defaultLinks;
+let currentEngine = localStorage.getItem(ENGINE_KEY) || 'google';
 
-    <button class="btn-reset" id="btnReset">↺ Reset to Defaults</button>
+// ── Clock ──
+function updateClock() {
+  const now = new Date();
+  const h = now.getHours();
+  const m = String(now.getMinutes()).padStart(2, '0');
+  const t = String(h % 12 || 12).padStart(2, '0');
+  document.getElementById('clock').textContent = `${t}:${m}`;
 
-    <div class="modal-buttons" style="margin-top:16px">
-      <button class="modal-btn cancel" id="settingsClose">Done</button>
-    </div>
-  </div>
-</div>
+  const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+  document.getElementById('date').textContent = now.toLocaleDateString('en-US', options);
 
-<script src="home.js"></script>
+  let greet = 'Good evening';
+  if (h >= 5 && h < 12) greet = 'Good morning';
+  else if (h >= 12 && h < 17) greet = 'Good afternoon';
+  document.getElementById('greeting').textContent = greet;
+}
+updateClock();
+setInterval(updateClock, 1000);
+
+// ── Quote ──
+document.getElementById('quote').textContent = quotes[Math.floor(Math.random() * quotes.length)];
+
+// ── Search ──
+const searchInput = document.getElementById('searchInput');
+searchInput.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && searchInput.value.trim()) {
+    window.location.href = searchEngines[currentEngine] + encodeURIComponent(searchInput.value.trim());
+  }
+});
+
+document.querySelectorAll('.engine-pill').forEach(pill => {
+  pill.addEventListener('click', () => {
+    document.querySelectorAll('.engine-pill').forEach(p => p.classList.remove('active'));
+    pill.classList.add('active');
+    currentEngine = pill.dataset.engine;
+    localStorage.setItem(ENGINE_KEY, currentEngine);
+    searchInput.focus();
+  });
+});
+document.querySelector(`[data-engine="${currentEngine}"]`)?.classList.add('active');
+setTimeout(() => searchInput.focus(), 300);
+
+// ── Links ──
+function saveLinks() { localStorage.setItem(STORAGE_KEY, JSON.stringify(links)); }
+
+function renderLinks() {
+  const grid = document.getElementById('linksGrid');
+  grid.innerHTML = '';
+  links.forEach((link, i) => {
+    const card = document.createElement('a');
+    card.className = 'link-card';
+    card.href = link.url;
+    card.innerHTML = `
+      <button class="link-delete" data-index="${i}" title="Remove">✕</button>
+      <div class="link-icon" style="background:${link.color || 'var(--bg-card)'}">${link.emoji || '🔗'}</div>
+      <span class="link-name">${link.name}</span>
+    `;
+    grid.appendChild(card);
+  });
+
+  grid.querySelectorAll('.link-delete').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.preventDefault();
+      e.stopPropagation();
+      links.splice(+btn.dataset.index, 1);
+      saveLinks();
+      renderLinks();
+    });
+  });
+}
+renderLinks();
+
+// ── Modal ──
+const overlay  = document.getElementById('modalOverlay');
+const btnAdd   = document.getElementById('btnAdd');
+const btnCancel = document.getElementById('modalCancel');
+const btnConfirm = document.getElementById('modalConfirm');
+
+btnAdd.addEventListener('click', () => { overlay.classList.add('active'); document.getElementById('modalName').focus(); });
+btnCancel.addEventListener('click', () => overlay.classList.remove('active'));
+overlay.addEventListener('click', e => { if (e.target === overlay) overlay.classList.remove('active'); });
+
+btnConfirm.addEventListener('click', () => {
+  const name = document.getElementById('modalName').value.trim();
+  let url = document.getElementById('modalUrl').value.trim();
+  const emoji = document.getElementById('modalEmoji').value.trim() || '🔗';
+  if (!name || !url) return;
+  if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+  const hue = Math.floor(Math.random() * 360);
+  links.push({ name, url, emoji, color: `hsl(${hue}, 50%, 50%)` });
+  saveLinks();
+  renderLinks();
+  overlay.classList.remove('active');
+  document.getElementById('modalName').value = '';
+  document.getElementById('modalUrl').value = '';
+  document.getElementById('modalEmoji').value = '';
+});
+
+// ── Keyboard shortcut: / to focus search ──
+document.addEventListener('keydown', e => {
+  if (e.key === '/' && document.activeElement !== searchInput) {
+    e.preventDefault();
+    searchInput.focus();
+  }
+});
+</script>
 </body>
 </html>
